@@ -5,11 +5,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class QuestionPage extends JPanel implements ActionListener {
+    private ScreenLayout screenLayout;
     private JLabel labelTimer;
     private JTextArea textoPergunta;
     private JButton botaoA, botaoB, botaoC, botaoD;
 
-    public QuestionPage(){
+    public QuestionPage(ScreenLayout layout){
+
+        this.screenLayout = layout;
+
         String pergunta = "A resposta é A? (É a A)";
         String respostaA = "Sou eu sou eu";
         String respostaB = "Não sou eu idiota";
@@ -65,6 +69,7 @@ public class QuestionPage extends JPanel implements ActionListener {
 
         if (source == botaoA) {
             System.out.println("Clicou na Opção A!");
+            screenLayout.mostrarPainel(ScreenLayout.PAINEL_PLACAR);
         } else if (source == botaoB) {
             System.out.println("Clicou na Opção B!");
         } else if (source == botaoC) {
