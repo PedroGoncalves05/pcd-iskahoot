@@ -1,0 +1,27 @@
+{
+  "name": "PCD-Quiz",
+  "questions": [
+    {
+      "question": "O que é uma thread?",
+      "points": 5,
+      "correct": 3,
+      "options": [
+        "Processo",
+        "Aplicação",
+        "Programa",
+        "Processo Ligeiro"
+      ]
+    },
+    {
+      "question": "Qual destes métodos é bloqueante?",
+      "points": 3,
+      "correct": 2,
+      "options": [
+        "join()",
+        "sleep()",
+        "wait()",
+        "Todos os anteriores"
+      ]
+    }
+  ]
+}

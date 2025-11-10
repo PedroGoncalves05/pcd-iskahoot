@@ -8,6 +8,8 @@ public class FrontPage extends JPanel implements ActionListener {
 
     private ScreenLayout screenLayout;
     private JTextArea textoPergunta;
+    private JTextField fieldUsername;
+    private JTextField fieldGameCode;
     private JButton botaoA;
 
     public FrontPage(ScreenLayout layout) {
@@ -15,28 +17,26 @@ public class FrontPage extends JPanel implements ActionListener {
 
         setLayout(new BorderLayout(10, 20));
 
+        JPanel painelLogin = new JPanel();
+        painelLogin.setLayout(new GridLayout(2, 2, 10, 10)); // [cite: 2773]
 
-        // 3. CENTER: A Pergunta
-        textoPergunta = new JTextArea("Clique para começar");
-        textoPergunta.setEditable(false);
-        textoPergunta.setFont(new Font("Arial", Font.PLAIN, 28));
-        textoPergunta.setWrapStyleWord(true);
-        textoPergunta.setLineWrap(true);
+        JLabel labelUsername = new JLabel("Username:");
+        fieldUsername = new JTextField();
 
-        add(textoPergunta, BorderLayout.CENTER);
+        JLabel labelGameCode = new JLabel("Game Code:");
+        fieldGameCode = new JTextField();
+
+        painelLogin.add(labelUsername);
+        painelLogin.add(fieldUsername);
+        painelLogin.add(labelGameCode);
+        painelLogin.add(fieldGameCode);
+        add(painelLogin, BorderLayout.CENTER);
+
 
         JPanel painelButtons = new JPanel();
-
-        // Criamos os botões [cite: 1990]
         botaoA = new JButton("Começar");
-        // Adicionamos os botões ao painel de botões
         painelButtons.add(botaoA);
-
-
-        // Adicionamos o painel de botões ao sul do painel principal
         add(painelButtons, BorderLayout.SOUTH);
-
-
         botaoA.addActionListener(this);
 
     }
@@ -45,7 +45,15 @@ public class FrontPage extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
 
-        if (source == botaoA)
-            screenLayout.mostrarPainel(ScreenLayout.PAINEL_PERGUNTA);
+        if (source == botaoA) {
+            String username = fieldUsername.getText();
+            String gameCode = fieldGameCode.getText();
+            if (username.isEmpty() || gameCode.isEmpty()) {
+                return;
+            }else{
+                screenLayout.registerAndStart(username);
+            }
+        }
+
     }
 }

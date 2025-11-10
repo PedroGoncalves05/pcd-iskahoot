@@ -1,24 +1,21 @@
 package GUI;
+import GameState.Question;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class QuestionPage extends JPanel implements ActionListener {
     private ScreenLayout screenLayout;
     private JLabel labelTimer;
     private JTextArea textoPergunta;
     private JButton botaoA, botaoB, botaoC, botaoD;
+    private Question currentQuestion;
 
     public QuestionPage(ScreenLayout layout){
 
         this.screenLayout = layout;
-
-        String pergunta = "A resposta é A? (É a A)";
-        String respostaA = "Sou eu sou eu";
-        String respostaB = "Não sou eu idiota";
-        String respostaC = "Não sou eu idiota";
-        String respostaD = "Beto vai ta maze po crl";
 
         setLayout(new BorderLayout(10, 20));
 
@@ -27,7 +24,7 @@ public class QuestionPage extends JPanel implements ActionListener {
         add(labelTimer, BorderLayout.NORTH);
 
         // 3. CENTER: A Pergunta
-        textoPergunta = new JTextArea(pergunta);
+        textoPergunta = new JTextArea("A Carregar");
         textoPergunta.setEditable(false);
         textoPergunta.setFont(new Font("Arial", Font.PLAIN, 28));
         textoPergunta.setWrapStyleWord(true);
@@ -42,10 +39,10 @@ public class QuestionPage extends JPanel implements ActionListener {
         painelBotoes.setLayout(new GridLayout(2, 2, 10, 10)); // 2 linhas, 2 colunas
 
         // Criamos os botões [cite: 1990]
-        botaoA = new JButton("A) " + respostaA);
-        botaoB = new JButton("B) " + respostaB);
-        botaoC = new JButton("C) " + respostaC);
-        botaoD = new JButton("D) " + respostaD);
+        botaoA = new JButton("A) ");
+        botaoB = new JButton("B) ");
+        botaoC = new JButton("C) ");
+        botaoD = new JButton("D) ");
 
         // Adicionamos os botões ao painel de botões
         painelBotoes.add(botaoA);
@@ -63,19 +60,54 @@ public class QuestionPage extends JPanel implements ActionListener {
         botaoD.addActionListener(this);
     }
 
+
+
+    public void setQuestion(Question q) {
+        this.currentQuestion = q;
+        textoPergunta.setText(q.getQuestion());
+
+        List<String> options = q.getOptions();
+
+        // Atualiza o texto dos botões
+        if (options.size() >= 4) { // Proteção para o caso de a pergunta ter < 4 opções
+            botaoA.setText("A) " + options.get(0));
+            botaoB.setText("B) " + options.get(1));
+            botaoC.setText("C) " + options.get(2));
+            botaoD.setText("D) " + options.get(3));
+        }
+
+        // TODO: Reiniciar o temporizador
+        labelTimer.setText("Tempo: 30");
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+        int respostaIndex = -1;
 
         if (source == botaoA) {
             System.out.println("Clicou na Opção A!");
-            screenLayout.mostrarPainel(ScreenLayout.PAINEL_PLACAR);
+            respostaIndex = 0;
         } else if (source == botaoB) {
             System.out.println("Clicou na Opção B!");
+            respostaIndex = 1;
         } else if (source == botaoC) {
             System.out.println("Clicou na Opção C!");
+            respostaIndex = 2;
         } else if (source == botaoD) {
             System.out.println("Clicou na Opção D!");
+            respostaIndex = 3;
         }
+        if (respostaIndex != -1) {
+            if (respostaIndex == currentQuestion.getCorrect()){
+                System.out.println("Resposta certa");
+                screenLayout.addPointsToScore(currentQuestion.getPoints());
+            } else{
+                System.out.println("Resposta errada");
+            }
+        }
+
+
+        screenLayout.showNextQuestion();
     }
 }
