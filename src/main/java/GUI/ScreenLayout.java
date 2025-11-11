@@ -57,18 +57,14 @@ public class ScreenLayout extends JPanel {
     }
 
     public void registerAndStart(String username) {
-        // 1. Criar o objeto Player
         Player newPlayer = new Player(username);
-
-        // 2. Adicionar o jogador ao "cérebro"
         game.addPlayer(newPlayer);
 
-        // 3. Começar o jogo
         showNextQuestion();
     }
 
     public void addPointsToScore(int points) {
-        game.addScore(points); // Diz ao "cérebro" para guardar os pontos
+        game.addScore(points);
     }
 
     public void mostrarPainel(String nomeDoPainel) {

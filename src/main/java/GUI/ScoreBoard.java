@@ -37,7 +37,6 @@ public class ScoreBoard extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == botaoJogarNovamente) {
-            // Mandar voltar ao início
             screenLayout.mostrarPainel(ScreenLayout.PAINEL_INICIO);
         }
     }

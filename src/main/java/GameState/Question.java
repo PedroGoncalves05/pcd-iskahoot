@@ -9,7 +9,6 @@ public class Question {
     private int points;
 
 
-    // --- Getters ---
     public String getQuestion() {
         return question;
     }

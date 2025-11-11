@@ -19,7 +19,7 @@ public class JSonReader {
 
         } catch (FileNotFoundException e) {
             System.err.println("Ficheiro de perguntas '" + fileName + "' não encontrado!");
-            return null; // Retorna null em caso de erro
+            return null;
         }
     }
 }

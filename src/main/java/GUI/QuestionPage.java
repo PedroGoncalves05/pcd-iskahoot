@@ -19,11 +19,9 @@ public class QuestionPage extends JPanel implements ActionListener {
 
         setLayout(new BorderLayout(10, 20));
 
-        // 2. NORTH: O Temporizador
         labelTimer = new JLabel("Tempo: 30", SwingConstants.CENTER);
         add(labelTimer, BorderLayout.NORTH);
 
-        // 3. CENTER: A Pergunta
         textoPergunta = new JTextArea("A Carregar");
         textoPergunta.setEditable(false);
         textoPergunta.setFont(new Font("Arial", Font.PLAIN, 28));
@@ -32,25 +30,20 @@ public class QuestionPage extends JPanel implements ActionListener {
 
         add(textoPergunta, BorderLayout.CENTER);
 
-        // 4. SOUTH: Os Botões de Resposta
-        // Criamos um painel *novo* só para os botões
         JPanel painelBotoes = new JPanel();
-        // E esse painel usará GridLayout [cite: 2109]
-        painelBotoes.setLayout(new GridLayout(2, 2, 10, 10)); // 2 linhas, 2 colunas
 
-        // Criamos os botões [cite: 1990]
+        painelBotoes.setLayout(new GridLayout(2, 2, 10, 10));
+
         botaoA = new JButton("A) ");
         botaoB = new JButton("B) ");
         botaoC = new JButton("C) ");
         botaoD = new JButton("D) ");
 
-        // Adicionamos os botões ao painel de botões
         painelBotoes.add(botaoA);
         painelBotoes.add(botaoB);
         painelBotoes.add(botaoC);
         painelBotoes.add(botaoD);
 
-        // Adicionamos o painel de botões ao sul do painel principal
         add(painelBotoes, BorderLayout.SOUTH);
 
 
@@ -68,15 +61,12 @@ public class QuestionPage extends JPanel implements ActionListener {
 
         List<String> options = q.getOptions();
 
-        // Atualiza o texto dos botões
-        if (options.size() >= 4) { // Proteção para o caso de a pergunta ter < 4 opções
+        if (options.size() >= 4) {
             botaoA.setText("A) " + options.get(0));
             botaoB.setText("B) " + options.get(1));
             botaoC.setText("C) " + options.get(2));
             botaoD.setText("D) " + options.get(3));
         }
-
-        // TODO: Reiniciar o temporizador
         labelTimer.setText("Tempo: 30");
     }
 
