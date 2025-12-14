@@ -10,14 +10,16 @@ public class ScreenLayout extends JPanel {
     public static final String PAINEL_PERGUNTA = "PERGUNTA";
     public static final String PAINEL_PLACAR = "PLACAR";
 
-    private CardLayout cardLayout;
-    private JPanel painelPrincipal;
+    private final CardLayout cardLayout;
+    private final JPanel painelPrincipal;
 
-    private FrontPage frontPage;
-    private QuestionPage question;
-    private ScoreBoard scoreBoard;
+    // FrontPage e ScoreBoard podem ser final
+    private final QuestionPage question;
+    private final ScoreBoard scoreBoard;
+    // O 'frontPage' é adicionado mas não acedido depois, pode ser variável local no construtor
+    // ou mantido como campo se quiseres expandir depois. Vou manter local para limpar warning.
 
-    private ObjectOutputStream out;
+    private final ObjectOutputStream out;
 
     public ScreenLayout(ObjectOutputStream out) {
         this.out = out;
@@ -25,8 +27,11 @@ public class ScreenLayout extends JPanel {
         cardLayout = new CardLayout();
         painelPrincipal = new JPanel(cardLayout);
 
-        frontPage = new FrontPage(this);
-        scoreBoard = new ScoreBoard(this);
+        // Variável local pois só usamos para adicionar ao painel
+        FrontPage frontPage = new FrontPage(this);
+
+        // Atualizado: ScoreBoard já não precisa de 'this' pois removemos o botão
+        scoreBoard = new ScoreBoard();
         question = new QuestionPage(this);
 
         painelPrincipal.add(frontPage, PAINEL_INICIO);
@@ -44,16 +49,14 @@ public class ScreenLayout extends JPanel {
         }
     }
 
-    // Placar Intermédio (Título: Classificação)
     public void mostrarPlacarIntermedio(String textoPlacar) {
         scoreBoard.setTitulo("Classificação");
         scoreBoard.setTextoPlacar(textoPlacar);
         mostrarPainel(PAINEL_PLACAR);
     }
 
-    // NOVO: Placar Final (Título: Placar Final)
     public void mostrarPlacarFinal(String textoPlacar) {
-        scoreBoard.setTitulo("Placar Final"); // Muda o título da janela
+        scoreBoard.setTitulo("Placar Final");
         scoreBoard.setTextoPlacar(textoPlacar);
         mostrarPainel(PAINEL_PLACAR);
     }
@@ -65,7 +68,7 @@ public class ScreenLayout extends JPanel {
                 out.flush();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Erro ao enviar resposta: " + e.getMessage());
         }
     }
 

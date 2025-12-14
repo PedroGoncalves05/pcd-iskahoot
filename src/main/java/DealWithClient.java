@@ -9,11 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class DealWithClient implements Runnable {
-    private Socket socket;
-    // Referência ao mapa GLOBAL de jogos do servidor
-    private ConcurrentHashMap<String, GameState> jogos;
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
+    private final Socket socket;
+    private final ConcurrentHashMap<String, GameState> jogos;
+    // 'in' e 'out' removidos daqui e passados para dentro do run()
 
     public DealWithClient(Socket socket, ConcurrentHashMap<String, GameState> jogos) {
         this.socket = socket;
@@ -22,12 +20,11 @@ public class DealWithClient implements Runnable {
 
     @Override
     public void run() {
-        String gameCode = null; // Guardar o código para remover no fim
-        GameState jogo = null;  // Guardar referência ao jogo
+        String gameCode = null;
+        GameState jogo = null;
 
-        try {
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
+        try (ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
             gameCode = (String) in.readObject();
             String teamName = (String) in.readObject();
@@ -81,9 +78,12 @@ public class DealWithClient implements Runnable {
                     jogo.adicionarPontosEquipa(teamName, pontosAAdicionar, i);
                 }
 
+                // Os sleeps aqui geram aviso de "busy waiting", mas são intencionais para o fluxo do jogo
+                //noinspection BusyWait
                 Thread.sleep(100);
                 out.writeObject("PLACAR:" + jogo.getPlacarTexto(i));
                 out.flush();
+                //noinspection BusyWait
                 Thread.sleep(5000);
             }
 
@@ -94,20 +94,17 @@ public class DealWithClient implements Runnable {
         } catch (Exception e) {
             System.out.println("Cliente saiu ou erro: " + e.getMessage());
         } finally {
-            // === GESTÃO DE MEMÓRIA (LIMPEZA) ===
-            try {
-                if (socket != null && !socket.isClosed()) socket.close();
-            } catch (IOException e) { /* Ignorar */ }
-
             if (gameCode != null && jogo != null) {
-                // Notifica o jogo que este jogador acabou
                 boolean ultimoASair = jogo.registarConclusaoJogador();
-
-                // Se for o último, apaga a luz (remove o jogo da memória)
                 if (ultimoASair) {
                     jogos.remove(gameCode);
-                    System.out.println(">>> JOGO " + gameCode + " ENCERRADO E REMOVIDO DA MEMÓRIA. <<<");
+                    System.out.println(">>> JOGO " + gameCode + " ENCERRADO. <<<");
                 }
+            }
+            try {
+                if (!socket.isClosed()) socket.close();
+            } catch (IOException e) {
+                // ignorar
             }
         }
     }

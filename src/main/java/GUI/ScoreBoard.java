@@ -2,21 +2,17 @@ package GUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class ScoreBoard extends JPanel implements ActionListener {
+public class ScoreBoard extends JPanel {
 
-    private JTextArea areaPlacar;
-    private JLabel labelTitulo; // Agora é um atributo da classe
-    private JButton botaoJogarNovamente;
-    private ScreenLayout screenLayout;
+    private final JTextArea areaPlacar;
+    private final JLabel labelTitulo;
+    // O 'botaoJogarNovamente' foi removido porque não era usado
+    // O 'screenLayout' também não estava a ser usado aqui, removi a dependência local.
 
-    public ScoreBoard(ScreenLayout layout) {
-        this.screenLayout = layout;
+    public ScoreBoard() {
         setLayout(new BorderLayout());
 
-        // Guardamos a referência na variável labelTitulo
         labelTitulo = new JLabel("Classificação", SwingConstants.CENTER);
         labelTitulo.setFont(new Font("Arial", Font.BOLD, 32));
         add(labelTitulo, BorderLayout.NORTH);
@@ -33,19 +29,12 @@ public class ScoreBoard extends JPanel implements ActionListener {
         areaPlacar.setText(texto);
     }
 
-    // NOVO: Permite alterar o título (ex: para "Placar Final")
     public void setTitulo(String titulo) {
         labelTitulo.setText(titulo);
-        // Opcional: Mudar a cor para destacar que acabou
         if (titulo.toLowerCase().contains("final")) {
-            labelTitulo.setForeground(new Color(0, 150, 0)); // Verde escuro
+            labelTitulo.setForeground(new Color(0, 150, 0));
         } else {
             labelTitulo.setForeground(Color.BLACK);
         }
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        // Lógica de botões se necessário
     }
 }

@@ -3,16 +3,17 @@ import GameState.Question;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
-public class QuestionPage extends JPanel implements ActionListener {
-    private ScreenLayout screenLayout;
-    private JLabel labelTimer;
-    private JTextArea textoPergunta;
-    private JButton botaoA, botaoB, botaoC, botaoD;
+public class QuestionPage extends JPanel {
+    private final ScreenLayout screenLayout;
+    private final JLabel labelTimer;
+    private final JTextArea textoPergunta;
+    private final JButton botaoA;
+    private final JButton botaoB;
+    private final JButton botaoC;
+    private final JButton botaoD;
 
-    // Variáveis do Temporizador
     private Timer timerVisual;
     private int segundosRestantes;
 
@@ -21,7 +22,6 @@ public class QuestionPage extends JPanel implements ActionListener {
 
         setLayout(new BorderLayout(10, 20));
 
-        // Label do Tempo (vermelho para destaque)
         labelTimer = new JLabel("Tempo: 30", SwingConstants.CENTER);
         labelTimer.setFont(new Font("Arial", Font.BOLD, 20));
         labelTimer.setForeground(Color.RED);
@@ -39,6 +39,7 @@ public class QuestionPage extends JPanel implements ActionListener {
         JPanel painelBotoes = new JPanel();
         painelBotoes.setLayout(new GridLayout(2, 2, 10, 10));
 
+        // Inicialização dos botões
         botaoA = new JButton("A) ");
         botaoB = new JButton("B) ");
         botaoC = new JButton("C) ");
@@ -57,10 +58,11 @@ public class QuestionPage extends JPanel implements ActionListener {
 
         add(painelBotoes, BorderLayout.SOUTH);
 
-        botaoA.addActionListener(this);
-        botaoB.addActionListener(this);
-        botaoC.addActionListener(this);
-        botaoD.addActionListener(this);
+        // Uso de Method Reference ou Lambdas para limpar o código
+        botaoA.addActionListener(e -> processarResposta(e.getSource()));
+        botaoB.addActionListener(e -> processarResposta(e.getSource()));
+        botaoC.addActionListener(e -> processarResposta(e.getSource()));
+        botaoD.addActionListener(e -> processarResposta(e.getSource()));
     }
 
     public void setQuestion(Question q) {
@@ -74,13 +76,11 @@ public class QuestionPage extends JPanel implements ActionListener {
             botaoD.setText("D) " + options.get(3));
         }
 
-        // Reativar botões para a nova ronda e iniciar timer
         ativarBotoes(true);
         iniciarTimer(30);
     }
 
     private void iniciarTimer(int segundos) {
-        // Parar timer anterior se existir
         if (timerVisual != null && timerVisual.isRunning()) {
             timerVisual.stop();
         }
@@ -88,23 +88,17 @@ public class QuestionPage extends JPanel implements ActionListener {
         this.segundosRestantes = segundos;
         labelTimer.setText("Tempo: " + segundosRestantes);
 
-        timerVisual = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                segundosRestantes--;
+        // Lambda aqui em vez de 'new ActionListener()'
+        timerVisual = new Timer(1000, e -> {
+            segundosRestantes--;
 
-                if (segundosRestantes >= 0) {
-                    labelTimer.setText("Tempo: " + segundosRestantes);
-                } else {
-                    // === AQUI ESTÁ A CORREÇÃO ===
-                    // O tempo acabou!
-                    timerVisual.stop();
-                    labelTimer.setText("Tempo Esgotado!");
-                    ativarBotoes(false);
-
-                    // Envia -1 ao servidor para desbloquear o jogo
-                    screenLayout.enviarResposta(-1);
-                }
+            if (segundosRestantes >= 0) {
+                labelTimer.setText("Tempo: " + segundosRestantes);
+            } else {
+                timerVisual.stop();
+                labelTimer.setText("Tempo Esgotado!");
+                ativarBotoes(false);
+                screenLayout.enviarResposta(-1);
             }
         });
 
@@ -118,9 +112,7 @@ public class QuestionPage extends JPanel implements ActionListener {
         botaoD.setEnabled(ativo);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        Object source = e.getSource();
+    private void processarResposta(Object source) {
         int respostaIndex = -1;
 
         if (source == botaoA) respostaIndex = 0;
@@ -129,10 +121,8 @@ public class QuestionPage extends JPanel implements ActionListener {
         else if (source == botaoD) respostaIndex = 3;
 
         if (respostaIndex != -1) {
-            // Parar o timer visual porque o jogador respondeu a tempo
             if (timerVisual != null) timerVisual.stop();
             labelTimer.setText("Resposta Enviada!");
-
             screenLayout.enviarResposta(respostaIndex);
             ativarBotoes(false);
         }
