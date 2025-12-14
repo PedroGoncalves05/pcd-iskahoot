@@ -12,11 +12,11 @@ public class ScreenLayout extends JPanel {
 
     private CardLayout cardLayout;
     private JPanel painelPrincipal;
-    private QuestionPage question;
+
     private FrontPage frontPage;
+    private QuestionPage question;
     private ScoreBoard scoreBoard;
 
-    // Stream para enviar dados ao servidor
     private ObjectOutputStream out;
 
     public ScreenLayout(ObjectOutputStream out) {
@@ -37,9 +37,6 @@ public class ScreenLayout extends JPanel {
         this.add(painelPrincipal, BorderLayout.CENTER);
     }
 
-    // --- MÉTODOS CHAMADOS PELO CLIENTE (REDE) ---
-
-    // 1. Receber uma nova pergunta e mostrá-la
     public void receberPergunta(Question q) {
         if (q != null) {
             question.setQuestion(q);
@@ -47,15 +44,20 @@ public class ScreenLayout extends JPanel {
         }
     }
 
-    // 2. Terminar o jogo e mostrar o placar (O MÉTODO QUE FALTAVA)
-    public void terminarJogo(String username, int score) {
-        scoreBoard.updateScore(username, score);
+    // Placar Intermédio (Título: Classificação)
+    public void mostrarPlacarIntermedio(String textoPlacar) {
+        scoreBoard.setTitulo("Classificação");
+        scoreBoard.setTextoPlacar(textoPlacar);
         mostrarPainel(PAINEL_PLACAR);
     }
 
-    // --- MÉTODOS CHAMADOS PELA GUI ---
+    // NOVO: Placar Final (Título: Placar Final)
+    public void mostrarPlacarFinal(String textoPlacar) {
+        scoreBoard.setTitulo("Placar Final"); // Muda o título da janela
+        scoreBoard.setTextoPlacar(textoPlacar);
+        mostrarPainel(PAINEL_PLACAR);
+    }
 
-    // Enviar a resposta escolhida para o servidor
     public void enviarResposta(int indexOpcao) {
         try {
             if (out != null) {
@@ -70,9 +72,4 @@ public class ScreenLayout extends JPanel {
     public void mostrarPainel(String nomeDoPainel) {
         cardLayout.show(painelPrincipal, nomeDoPainel);
     }
-
-    // Métodos antigos (podem ficar vazios pois a lógica agora é do servidor)
-    public void registerAndStart(String username) {}
-    public void addPointsToScore(int points) {}
-    public void showNextQuestion() {}
 }

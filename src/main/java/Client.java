@@ -2,8 +2,8 @@ import GUI.Frame;
 import GUI.ScreenLayout;
 import GameState.Question;
 
+import javax.swing.*;
 import java.awt.BorderLayout;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -11,101 +11,89 @@ import java.net.Socket;
 public class Client {
 
     public static void main(String[] args) {
-        // Validação dos argumentos
-        // Formato esperado: java Client <IP> <PORT> <Jogo> <Equipa> <Username>
-        if (args.length < 5) {
-            System.out.println("Erro: Argumentos insuficientes.");
-            System.out.println("Uso: java Client <IP> <PORT> <Jogo> <Equipa> <Username>");
-            return;
+        String ip;
+        int port;
+        String gameCode;
+        String teamName;
+        String username;
+
+        if (args.length >= 5) {
+            ip = args[0];
+            port = Integer.parseInt(args[1]);
+            gameCode = args[2];
+            teamName = args[3];
+            username = args[4];
+        } else {
+            ip = "localhost";
+            port = 12345;
+            gameCode = JOptionPane.showInputDialog(null, "Código do Jogo:", "Login", JOptionPane.QUESTION_MESSAGE);
+            if (gameCode == null || gameCode.trim().isEmpty()) return;
+            teamName = JOptionPane.showInputDialog(null, "Equipa:", "Login", JOptionPane.QUESTION_MESSAGE);
+            if (teamName == null || teamName.trim().isEmpty()) return;
+            username = JOptionPane.showInputDialog(null, "Username:", "Login", JOptionPane.QUESTION_MESSAGE);
+            if (username == null || username.trim().isEmpty()) return;
         }
 
-        String ip = args[0];
-        int port = Integer.parseInt(args[1]);
-        String gameCode = args[2];
-        String teamName = args[3];
-        String username = args[4];
-
         try {
-            System.out.println("A tentar conectar a " + ip + ":" + port + "...");
+            System.out.println("A conectar...");
             Socket socket = new Socket(ip, port);
-
-            // IMPORTANTE: Criar o output stream antes do input para evitar bloqueio
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-            // --- FASE 4: Protocolo de Ligação Inicial ---
-            // Enviar dados de identificação para o servidor
             out.writeObject(gameCode);
             out.writeObject(teamName);
             out.writeObject(username);
             out.flush();
 
-            // Ler resposta do servidor (se aceita ou recusa)
             Object resposta = in.readObject();
 
             if ("OK".equals(resposta)) {
-                System.out.println("Login aceite pelo servidor! A abrir jogo...");
-
-                // --- INICIAR GUI ---
                 Frame frame = new Frame();
+                frame.setTitle("IsKahoot - " + username + " (" + teamName + ")");
 
-                // Passamos o 'out' para o ScreenLayout poder enviar respostas
                 ScreenLayout screenLayout = new ScreenLayout(out);
-
                 frame.add(screenLayout, BorderLayout.CENTER);
                 screenLayout.mostrarPainel(ScreenLayout.PAINEL_INICIO);
                 frame.setVisible(true);
 
-                // --- FASE 5: Thread de Escuta (Ouvir o Servidor) ---
-                // Esta thread fica sempre ativa à espera de mensagens do servidor
                 new Thread(() -> {
                     try {
                         while (true) {
                             Object mensagem = in.readObject();
 
-                            // CASO 1: Receber uma Pergunta
                             if (mensagem instanceof Question) {
-                                System.out.println("Pergunta recebida!");
-                                Question q = (Question) mensagem;
-                                screenLayout.receberPergunta(q);
+                                screenLayout.receberPergunta((Question) mensagem);
                             }
-                            // CASO 2: Receber Mensagens de Texto (ex: "FIM" ou Erros)
                             else if (mensagem instanceof String) {
                                 String texto = (String) mensagem;
 
-                                if (texto.equals("FIM")) {
-                                    System.out.println("O jogo terminou. A receber pontuação...");
-
-                                    // O servidor manda a pontuação (int) logo a seguir ao "FIM"
-                                    Object pontuacaoObj = in.readObject();
-
-                                    if (pontuacaoObj instanceof Integer) {
-                                        int pontuacaoFinal = (Integer) pontuacaoObj;
-
-                                        // Atualizar GUI para mostrar o Placar Final
-                                        screenLayout.terminarJogo(username, pontuacaoFinal);
-                                        System.out.println("Pontuação final: " + pontuacaoFinal);
+                                if (texto.startsWith("PLACAR:")) {
+                                    // Placar Intermédio
+                                    screenLayout.mostrarPlacarIntermedio(texto.substring(7));
+                                }
+                                else if (texto.equals("FIM")) {
+                                    // Fim do Jogo
+                                    Object placarFinal = in.readObject();
+                                    if (placarFinal instanceof String) {
+                                        screenLayout.mostrarPlacarFinal((String) placarFinal);
                                     }
-
-                                    // Sair do loop (terminar a thread de escuta)
+                                    socket.close();
                                     break;
-                                } else {
-                                    System.out.println("Mensagem do Servidor: " + texto);
                                 }
                             }
                         }
-                    } catch (IOException | ClassNotFoundException e) {
-                        System.out.println("Conexão perdida com o servidor.");
+                    } catch (Exception e) {
+                        System.out.println("Fim da conexão.");
+                        System.exit(0);
                     }
                 }).start();
 
             } else {
-                System.out.println("O servidor recusou a entrada: " + resposta);
+                JOptionPane.showMessageDialog(null, "Erro: " + resposta);
                 socket.close();
             }
 
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Erro na conexão: " + e.getMessage());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
