@@ -1,12 +1,9 @@
 package GUI;
 
-import GameState.GameState;
 import GameState.Question;
-import GameState.Player;
-import java.util.List;
 import javax.swing.*;
 import java.awt.*;
-
+import java.io.ObjectOutputStream;
 
 public class ScreenLayout extends JPanel {
     public static final String PAINEL_INICIO = "INICIO";
@@ -18,10 +15,12 @@ public class ScreenLayout extends JPanel {
     private QuestionPage question;
     private FrontPage frontPage;
     private ScoreBoard scoreBoard;
-    private GameState game;
 
-    public ScreenLayout(GameState game) {
-        this.game = game;
+    // Stream para enviar dados ao servidor
+    private ObjectOutputStream out;
+
+    public ScreenLayout(ObjectOutputStream out) {
+        this.out = out;
 
         cardLayout = new CardLayout();
         painelPrincipal = new JPanel(cardLayout);
@@ -38,36 +37,42 @@ public class ScreenLayout extends JPanel {
         this.add(painelPrincipal, BorderLayout.CENTER);
     }
 
-    public void showNextQuestion() {
-       Question q = game.getNextQuestion();
+    // --- MÉTODOS CHAMADOS PELO CLIENTE (REDE) ---
+
+    // 1. Receber uma nova pergunta e mostrá-la
+    public void receberPergunta(Question q) {
         if (q != null) {
             question.setQuestion(q);
             mostrarPainel(PAINEL_PERGUNTA);
-        } else {
-            int finalScore = game.getScore();
-            Player player = game.getPlayer();
-            String username = player.getUsername();
-            scoreBoard.updateScore(username, finalScore);
-            mostrarPainel(PAINEL_PLACAR);
         }
-
-
-
-
     }
 
-    public void registerAndStart(String username) {
-        Player newPlayer = new Player(username);
-        game.addPlayer(newPlayer);
-
-        showNextQuestion();
+    // 2. Terminar o jogo e mostrar o placar (O MÉTODO QUE FALTAVA)
+    public void terminarJogo(String username, int score) {
+        scoreBoard.updateScore(username, score);
+        mostrarPainel(PAINEL_PLACAR);
     }
 
-    public void addPointsToScore(int points) {
-        game.addScore(points);
+    // --- MÉTODOS CHAMADOS PELA GUI ---
+
+    // Enviar a resposta escolhida para o servidor
+    public void enviarResposta(int indexOpcao) {
+        try {
+            if (out != null) {
+                out.writeObject(indexOpcao);
+                out.flush();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void mostrarPainel(String nomeDoPainel) {
         cardLayout.show(painelPrincipal, nomeDoPainel);
     }
+
+    // Métodos antigos (podem ficar vazios pois a lógica agora é do servidor)
+    public void registerAndStart(String username) {}
+    public void addPointsToScore(int points) {}
+    public void showNextQuestion() {}
 }

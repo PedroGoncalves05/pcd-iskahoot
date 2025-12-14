@@ -11,10 +11,11 @@ public class QuestionPage extends JPanel implements ActionListener {
     private JLabel labelTimer;
     private JTextArea textoPergunta;
     private JButton botaoA, botaoB, botaoC, botaoD;
-    private Question currentQuestion;
+
+    // Já não precisamos guardar a 'currentQuestion' para verificar respostas,
+    // apenas para mostrar o texto.
 
     public QuestionPage(ScreenLayout layout){
-
         this.screenLayout = layout;
 
         setLayout(new BorderLayout(10, 20));
@@ -22,7 +23,7 @@ public class QuestionPage extends JPanel implements ActionListener {
         labelTimer = new JLabel("Tempo: 30", SwingConstants.CENTER);
         add(labelTimer, BorderLayout.NORTH);
 
-        textoPergunta = new JTextArea("A Carregar");
+        textoPergunta = new JTextArea("A aguardar pergunta...");
         textoPergunta.setEditable(false);
         textoPergunta.setFont(new Font("Arial", Font.PLAIN, 28));
         textoPergunta.setWrapStyleWord(true);
@@ -31,7 +32,6 @@ public class QuestionPage extends JPanel implements ActionListener {
         add(textoPergunta, BorderLayout.CENTER);
 
         JPanel painelBotoes = new JPanel();
-
         painelBotoes.setLayout(new GridLayout(2, 2, 10, 10));
 
         botaoA = new JButton("A) ");
@@ -46,27 +46,24 @@ public class QuestionPage extends JPanel implements ActionListener {
 
         add(painelBotoes, BorderLayout.SOUTH);
 
-
         botaoA.addActionListener(this);
         botaoB.addActionListener(this);
         botaoC.addActionListener(this);
         botaoD.addActionListener(this);
     }
 
-
-
     public void setQuestion(Question q) {
-        this.currentQuestion = q;
         textoPergunta.setText(q.getQuestion());
 
         List<String> options = q.getOptions();
-
+        // Reset aos textos dos botões
         if (options.size() >= 4) {
             botaoA.setText("A) " + options.get(0));
             botaoB.setText("B) " + options.get(1));
             botaoC.setText("C) " + options.get(2));
             botaoD.setText("D) " + options.get(3));
         }
+        // Reset ao timer visual (funcionalidade futura)
         labelTimer.setText("Tempo: 30");
     }
 
@@ -76,28 +73,21 @@ public class QuestionPage extends JPanel implements ActionListener {
         int respostaIndex = -1;
 
         if (source == botaoA) {
-            System.out.println("Clicou na Opção A!");
             respostaIndex = 0;
         } else if (source == botaoB) {
-            System.out.println("Clicou na Opção B!");
             respostaIndex = 1;
         } else if (source == botaoC) {
-            System.out.println("Clicou na Opção C!");
             respostaIndex = 2;
         } else if (source == botaoD) {
-            System.out.println("Clicou na Opção D!");
             respostaIndex = 3;
         }
+
         if (respostaIndex != -1) {
-            if (respostaIndex == currentQuestion.getCorrect()){
-                System.out.println("Resposta certa");
-                screenLayout.addPointsToScore(currentQuestion.getPoints());
-            } else{
-                System.out.println("Resposta errada");
-            }
+            // Envia a resposta para o servidor
+            screenLayout.enviarResposta(respostaIndex);
+
+            // Feedback visual simples
+            textoPergunta.setText("Resposta enviada! À espera da próxima...");
         }
-
-
-        screenLayout.showNextQuestion();
     }
 }

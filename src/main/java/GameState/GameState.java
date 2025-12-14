@@ -2,53 +2,40 @@ package GameState;
 
 import java.util.List;
 import java.util.ArrayList;
-
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameState {
-    //variavéis necessárias para o jogo,
     private String gameCode;
     private List<Question> allQuestions;
-    private int currentQuestionIndex;
-    private List<Player> players;
-    private int maxPlayers;
-    private int totalScore;
+    private int maxPlayersPerTeam = 2; // Definido no enunciado como equipas de 2
 
-    public GameState(String gameCode, List<Question> questions, int maxPlayers) {
+    // Mapa: NomeDaEquipa -> BarreiraDessaEquipa
+    private Map<String, Barrier> barreirasDasEquipas;
+
+    // Mapa para controlar quantos jogadores já entraram em cada equipa (opcional mas útil)
+    private Map<String, Integer> jogadoresPorEquipa;
+
+    public GameState(String gameCode, List<Question> questions, int maxPlayersPerTeam) {
         this.gameCode = gameCode;
         this.allQuestions = questions;
-        this.maxPlayers = maxPlayers;
-        this.currentQuestionIndex = -1;
-        this.players = new ArrayList<>();
-        this.totalScore = 0;
+        this.maxPlayersPerTeam = maxPlayersPerTeam;
+
+        this.barreirasDasEquipas = new ConcurrentHashMap<>();
+        this.jogadoresPorEquipa = new ConcurrentHashMap<>();
     }
 
-
-    public boolean addPlayer(Player player) {
-        if (players.size() < maxPlayers) {
-            players.add(player);
-            return true;
-        }
-        return false; // Jogo está cheio
+    // Método para obter (ou criar) a barreira de uma equipa
+    public Barrier getBarreira(String teamName) {
+        // computeIfAbsent: Se a equipa não existe, cria uma nova Barreira para ela
+        return barreirasDasEquipas.computeIfAbsent(teamName, k -> new Barrier(maxPlayersPerTeam));
     }
 
-
-    public Question getNextQuestion() {
-        currentQuestionIndex++;
-        if (currentQuestionIndex < allQuestions.size())
-            return allQuestions.get(currentQuestionIndex);
-        return null;
+    public void registarJogadorNaEquipa(String teamName) {
+        jogadoresPorEquipa.merge(teamName, 1, Integer::sum);
     }
 
-    public Player getPlayer() {
-        if (players.isEmpty()) {
-            return null;
-        }
-        return players.get(0);
-    }
-    public void addScore(int score) {
-        totalScore += score;
-    }
-    public int getScore() {
-        return totalScore;
+    public List<Question> getQuestions() {
+        return allQuestions;
     }
 }
