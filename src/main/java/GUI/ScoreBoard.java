@@ -7,8 +7,6 @@ public class ScoreBoard extends JPanel {
 
     private final JTextArea areaPlacar;
     private final JLabel labelTitulo;
-    // O 'botaoJogarNovamente' foi removido porque não era usado
-    // O 'screenLayout' também não estava a ser usado aqui, removi a dependência local.
 
     public ScoreBoard() {
         setLayout(new BorderLayout());

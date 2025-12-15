@@ -26,16 +26,10 @@ public class Barrier {
             if (contador < participantesNecessarios) {
                 // Se ainda não chegaram todos, espera até ao tempo limite
                 boolean tempoSobrou = condicao.await(tempo, unidade);
-
-                // Se acordou e a geração ainda é a mesma, significa que NINGUÉM sinalizou
-                // e o tempo acabou (ou foi um spurious wakeup, mas assumimos timeout).
-                // O enunciado diz: se expirar, todos devem ser desbloqueados.
                 if (!tempoSobrou && generation == minhaGeracao) {
-                    // Timeout ocorreu! Forçar avanço.
                     quebrarBarreira();
                 }
             } else {
-                // Fui o último a chegar!
                 proximaGeracao();
             }
         } finally {
@@ -44,9 +38,8 @@ public class Barrier {
     }
 
     private void quebrarBarreira() {
-        // Reiniciar contadores e acordar todos
         contador = 0;
-        generation++; // Avança a geração para invalidar esperas antigas
+        generation++;
         condicao.signalAll();
     }
 

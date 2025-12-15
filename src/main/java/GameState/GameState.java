@@ -10,19 +10,13 @@ public class GameState {
     private final String gameCode;
     private final List<Question> allQuestions;
     private final int maxPlayersPerTeam;
-
     private final Map<String, Barrier> barreirasDasEquipas;
     private final Map<Integer, ModifiedCountDownLatch> latchesPerguntas;
-
-    // Controlo de jogadores (pode ser usado para validações futuras)
     private final Map<String, Integer> jogadoresPorEquipa;
-
     private final ConcurrentHashMap<String, AtomicInteger> pontuacoesEquipa;
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, AtomicInteger>> pontosPorRonda;
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, AtomicInteger>> acertosPorRonda;
-
     private final AtomicInteger jogadoresFinalizados;
-
     private int numJogadoresTotal = 0;
 
     public GameState(String gameCode, List<Question> questions, int maxPlayersPerTeam) {
@@ -39,7 +33,6 @@ public class GameState {
 
         this.jogadoresFinalizados = new AtomicInteger(0);
     }
-
 
     public String getGameCode() {
         return gameCode;

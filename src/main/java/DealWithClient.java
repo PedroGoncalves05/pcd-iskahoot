@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 public class DealWithClient implements Runnable {
     private final Socket socket;
     private final ConcurrentHashMap<String, GameState> jogos;
-    // 'in' e 'out' removidos daqui e passados para dentro do run()
 
     public DealWithClient(Socket socket, ConcurrentHashMap<String, GameState> jogos) {
         this.socket = socket;
@@ -78,12 +77,9 @@ public class DealWithClient implements Runnable {
                     jogo.adicionarPontosEquipa(teamName, pontosAAdicionar, i);
                 }
 
-                // Os sleeps aqui geram aviso de "busy waiting", mas são intencionais para o fluxo do jogo
-                //noinspection BusyWait
                 Thread.sleep(100);
                 out.writeObject("PLACAR:" + jogo.getPlacarTexto(i));
                 out.flush();
-                //noinspection BusyWait
                 Thread.sleep(5000);
             }
 

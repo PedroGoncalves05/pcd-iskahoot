@@ -16,9 +16,6 @@ public class ScreenLayout extends JPanel {
     // FrontPage e ScoreBoard podem ser final
     private final QuestionPage question;
     private final ScoreBoard scoreBoard;
-    // O 'frontPage' é adicionado mas não acedido depois, pode ser variável local no construtor
-    // ou mantido como campo se quiseres expandir depois. Vou manter local para limpar warning.
-
     private final ObjectOutputStream out;
 
     public ScreenLayout(ObjectOutputStream out) {

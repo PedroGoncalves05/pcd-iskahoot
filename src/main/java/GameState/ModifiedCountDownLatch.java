@@ -3,8 +3,8 @@ package GameState;
 public class ModifiedCountDownLatch {
     private int count;
     private int bonusCount;
-    private final int bonusFactor; // Nunca muda após construtor
-    private final long deadline;   // Nunca muda após construtor
+    private final int bonusFactor;
+    private final long deadline;
     private boolean isOpen = false;
 
     public ModifiedCountDownLatch(int bonusFactor, int bonusCount, int waitPeriod, int count) {

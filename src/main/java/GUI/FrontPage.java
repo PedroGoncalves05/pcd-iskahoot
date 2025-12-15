@@ -22,12 +22,10 @@ public class FrontPage extends JPanel implements ActionListener {
 
         JLabel labelUsername = new JLabel("Username:");
         fieldUsername = new JTextField();
-        // Opcional: Desativar edição se os dados vierem dos argumentos
-        // fieldUsername.setEditable(false);
+
 
         JLabel labelGameCode = new JLabel("Game Code:");
         fieldGameCode = new JTextField();
-        // fieldGameCode.setEditable(false);
 
         painelLogin.add(labelUsername);
         painelLogin.add(fieldUsername);
@@ -48,8 +46,6 @@ public class FrontPage extends JPanel implements ActionListener {
         Object source = e.getSource();
 
         if (source == botaoA) {
-            // CORREÇÃO: Removemos a chamada ao screenLayout.registerAndStart
-            // Agora apenas damos feedback visual de que estamos à espera
             System.out.println("Botão clicado. A aguardar início do jogo...");
             botaoA.setEnabled(false); // Desativa o botão para não clicar várias vezes
             botaoA.setText("A aguardar...");
