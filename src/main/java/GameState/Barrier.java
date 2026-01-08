@@ -16,7 +16,7 @@ public class Barrier {
         this.participantesNecessarios = participantesNecessarios;
     }
 
-    // Agora o await recebe o tempo limite
+
     public void await(long tempo, TimeUnit unidade) throws InterruptedException {
         lock.lock();
         try {

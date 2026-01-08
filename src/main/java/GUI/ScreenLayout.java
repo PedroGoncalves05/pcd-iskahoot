@@ -13,7 +13,6 @@ public class ScreenLayout extends JPanel {
     private final CardLayout cardLayout;
     private final JPanel painelPrincipal;
 
-    // FrontPage e ScoreBoard podem ser final
     private final QuestionPage question;
     private final ScoreBoard scoreBoard;
     private final ObjectOutputStream out;
@@ -24,14 +23,10 @@ public class ScreenLayout extends JPanel {
         cardLayout = new CardLayout();
         painelPrincipal = new JPanel(cardLayout);
 
-        // Variável local pois só usamos para adicionar ao painel
-        FrontPage frontPage = new FrontPage(this);
 
-        // Atualizado: ScoreBoard já não precisa de 'this' pois removemos o botão
         scoreBoard = new ScoreBoard();
         question = new QuestionPage(this);
 
-        painelPrincipal.add(frontPage, PAINEL_INICIO);
         painelPrincipal.add(question, PAINEL_PERGUNTA);
         painelPrincipal.add(scoreBoard, PAINEL_PLACAR);
 

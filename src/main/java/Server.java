@@ -89,15 +89,17 @@ public class Server {
         }
     }
 
+
+
     private static void criarJogo(String codigo, int jogadoresPorEquipa, int numEquipas, int numPerguntas) {
         List<Question> perguntasDoJogo = todasPerguntas;
         if (numPerguntas < todasPerguntas.size()) {
             perguntasDoJogo = todasPerguntas.subList(0, numPerguntas);
         }
 
-        GameState novoJogo = new GameState(codigo, perguntasDoJogo, jogadoresPorEquipa);
+        GameState novoJogo = new GameState(codigo, perguntasDoJogo, jogadoresPorEquipa, numEquipas);
         jogosAtivos.put(codigo, novoJogo);
 
-        System.out.println("Novo jogo criado: " + codigo);
+        System.out.println("Novo jogo criado: " + codigo + " (Esperando " + (jogadoresPorEquipa * numEquipas) + " jogadores)");
     }
 }

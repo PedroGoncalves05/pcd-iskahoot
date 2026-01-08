@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
 
 public class GameState {
 
@@ -18,8 +19,13 @@ public class GameState {
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, AtomicInteger>> acertosPorRonda;
     private final AtomicInteger jogadoresFinalizados;
     private int numJogadoresTotal = 0;
+    private final CountDownLatch startLatch;
+    private final int totalJogadoresEsperados;
+    private final Barrier barreiraInicioRonda;
+    private final GameManager gameManager;
 
-    public GameState(String gameCode, List<Question> questions, int maxPlayersPerTeam) {
+
+    public GameState(String gameCode, List<Question> questions, int maxPlayersPerTeam, int numEquipas) {
         this.gameCode = gameCode;
         this.allQuestions = questions;
         this.maxPlayersPerTeam = maxPlayersPerTeam;
@@ -30,8 +36,11 @@ public class GameState {
         this.pontuacoesEquipa = new ConcurrentHashMap<>();
         this.pontosPorRonda = new ConcurrentHashMap<>();
         this.acertosPorRonda = new ConcurrentHashMap<>();
-
+        this.totalJogadoresEsperados = maxPlayersPerTeam * numEquipas;
+        this.startLatch = new CountDownLatch(totalJogadoresEsperados);
         this.jogadoresFinalizados = new AtomicInteger(0);
+        this.barreiraInicioRonda = new Barrier(totalJogadoresEsperados);
+        this.gameManager = new GameManager(this);
     }
 
     public String getGameCode() {
@@ -46,9 +55,6 @@ public class GameState {
         return numJogadoresTotal;
     }
 
-    public Barrier getBarreira(String teamName) {
-        return barreirasDasEquipas.computeIfAbsent(teamName, k -> new Barrier(maxPlayersPerTeam));
-    }
 
     public ModifiedCountDownLatch getLatch(int questionIndex, int bonusCount, int waitTime) {
         return latchesPerguntas.computeIfAbsent(questionIndex, k ->
@@ -56,6 +62,9 @@ public class GameState {
         );
     }
 
+    public GameManager getGameManager() {
+        return gameManager;
+    }
     public synchronized void registarJogadorNaEquipa(String teamName) {
         jogadoresPorEquipa.merge(teamName, 1, Integer::sum);
         numJogadoresTotal++;
@@ -123,6 +132,10 @@ public class GameState {
         return sb.toString();
     }
 
+    public CountDownLatch getStartLatch() {
+        return startLatch;
+    }
+
     public String getPlacarFinal() {
         StringBuilder sb = new StringBuilder("=== PLACAR FINAL ===\n");
         pontuacoesEquipa.entrySet().stream()
@@ -132,4 +145,9 @@ public class GameState {
                 });
         return sb.toString();
     }
+
+    public Barrier getBarreiraInicioRonda() {
+        return barreiraInicioRonda;
+    }
+
 }
