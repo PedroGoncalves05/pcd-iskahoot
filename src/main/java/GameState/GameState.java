@@ -11,7 +11,6 @@ public class GameState {
     private final String gameCode;
     private final List<Question> allQuestions;
     private final int maxPlayersPerTeam;
-    private final Map<String, Barrier> barreirasDasEquipas;
     private final Map<Integer, ModifiedCountDownLatch> latchesPerguntas;
     private final Map<String, Integer> jogadoresPorEquipa;
     private final ConcurrentHashMap<String, AtomicInteger> pontuacoesEquipa;
@@ -23,14 +22,13 @@ public class GameState {
     private final int totalJogadoresEsperados;
     private final Barrier barreiraInicioRonda;
     private final GameManager gameManager;
+    private final Map<String, Barrier> barreirasEquipa = new ConcurrentHashMap<>();
 
 
     public GameState(String gameCode, List<Question> questions, int maxPlayersPerTeam, int numEquipas) {
         this.gameCode = gameCode;
         this.allQuestions = questions;
         this.maxPlayersPerTeam = maxPlayersPerTeam;
-
-        this.barreirasDasEquipas = new ConcurrentHashMap<>();
         this.jogadoresPorEquipa = new ConcurrentHashMap<>();
         this.latchesPerguntas = new ConcurrentHashMap<>();
         this.pontuacoesEquipa = new ConcurrentHashMap<>();
@@ -60,6 +58,10 @@ public class GameState {
         return latchesPerguntas.computeIfAbsent(questionIndex, k ->
                 new ModifiedCountDownLatch(2, bonusCount, waitTime, numJogadoresTotal)
         );
+    }
+
+    public Barrier getBarreira(String teamName) {
+        return barreirasEquipa.computeIfAbsent(teamName, k -> new Barrier(maxPlayersPerTeam));
     }
 
     public GameManager getGameManager() {

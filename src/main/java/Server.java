@@ -1,5 +1,6 @@
 import GameState.GameState;
 import GameState.Question;
+import GameState.DealWithClient;
 import java.io.*;
 import java.net.*;
 import java.util.List;
@@ -33,8 +34,8 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                DealWithClient worker = new DealWithClient(clientSocket, jogosAtivos);
-                new Thread(worker).start();
+                Thread t = new Thread(new DealWithClient(clientSocket, jogosAtivos));
+                t.start();
             }
         } catch (IOException e) {
             System.err.println("Erro no Socket do Servidor: " + e.getMessage());
