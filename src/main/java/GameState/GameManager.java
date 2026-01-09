@@ -1,7 +1,11 @@
 package GameState;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class GameManager {
     private final GameState state;
+    private final ConcurrentHashMap<String, Set<Integer>> rondasEquipaFinalizadas = new ConcurrentHashMap<>();
 
 
         public GameManager(GameState state) {
@@ -22,7 +26,7 @@ public class GameManager {
                 ModifiedCountDownLatch latch = state.getLatch(indexPergunta, 2, 30);
                 int bonus = latch.countdown();
                 int totalPontos = acertou ? (pontosBase * bonus) : 0;
-                state.adicionarPontosEquipa(teamName, indexPergunta, respostaIndex);
+                state.adicionarPontosEquipa(teamName, totalPontos, indexPergunta);
 
                 return totalPontos;
             } else {
@@ -32,11 +36,15 @@ public class GameManager {
         }
 
         public int finalizarPontuacaoEquipa(String teamName, int indexPergunta, int pontosBase) {
-            int pontos = state.calcularPontosEquipa(teamName, indexPergunta, pontosBase);
-            if (pontos > 0) {
-                state.adicionarPontosEquipa(teamName, pontos, indexPergunta);
+            Set<Integer> finalizadas = rondasEquipaFinalizadas.computeIfAbsent(teamName, k -> ConcurrentHashMap.newKeySet());
+            if (finalizadas.add(indexPergunta)) {
+                int pontos = state.calcularPontosEquipa(teamName, indexPergunta, pontosBase);
+                if (pontos > 0) {
+                    state.adicionarPontosEquipa(teamName, pontos, indexPergunta);
+                }
+                return pontos;
             }
-            return pontos;
+            return 0;
         }
 }
 

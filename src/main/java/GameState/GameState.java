@@ -94,9 +94,9 @@ public class GameState {
         if (acertosPorRonda.containsKey(teamName) && acertosPorRonda.get(teamName).containsKey(rondaIndex)) {
             acertos = acertosPorRonda.get(teamName).get(rondaIndex).get();
         }
-
         if (acertos == maxPlayersPerTeam) {
-            return pointsBase * 2;
+            System.out.println(pointsBase*acertos + "aaaa");
+            return pointsBase * 4;
         } else if (acertos > 0) {
             return pointsBase;
         } else {
